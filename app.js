@@ -4,7 +4,9 @@ const taskList = document.querySelector('.collection');
 const clearBtn = document.querySelector('.clear-tasks');
 const filter = document.querySelector('#filter');
 const taskInput = document.querySelector('#task');
-
+const updateList = document.querySelector(".collection");
+var isUpdate = false;
+var currentUpdateElement=null;
 // Load all event listeners
 loadEventListeners();
 
@@ -16,6 +18,7 @@ function loadEventListeners() {
   form.addEventListener('submit', addTask);
   // Remove task event
   taskList.addEventListener('click', removeTask);
+  updateList.addEventListener('click', EditTask);
   // Clear task event
   clearBtn.addEventListener('click', clearTasks);
   // Filter tasks event
@@ -40,13 +43,16 @@ function getTasks() {
     li.appendChild(document.createTextNode(task));
     // Create new link element
     const link = document.createElement('a');
+    const update = document.createElement('a');
+    update.className = 'update-item secondary-content';
+    update.innerHTML = '<i class="fa fa-pencil"></i>';
     // Add class
     link.className = 'delete-item secondary-content';
     // Add icon html
     link.innerHTML = '<i class="fa fa-remove"></i>';
     // Append the link to li
     li.appendChild(link);
-
+    li.appendChild(update);
     // Append li to ul
     taskList.appendChild(li);
   });
@@ -66,13 +72,16 @@ function addTask(e) {
   li.appendChild(document.createTextNode(taskInput.value));
   // Create new link element
   const link = document.createElement('a');
+  const update = document.createElement('a');
+  update.className = 'update-item secondary-content';
+  update.innerHTML = '<i class="fa fa-pencil"></i>';
   // Add class
   link.className = 'delete-item secondary-content';
   // Add icon html
   link.innerHTML = '<i class="fa fa-remove"></i>';
   // Append the link to li
   li.appendChild(link);
-
+  li.appendChild(update);
   // Append li to ul
   taskList.appendChild(li);
 
@@ -81,6 +90,13 @@ function addTask(e) {
 
   // Clear input
   taskInput.value = '';
+  if(currentUpdateElement!=null){
+    currentUpdateElement.remove();
+    // console.log(e.target.parentElement.parentElement);
+    removeTaskFromLocalStorage(currentUpdateElement);
+    currentUpdateElement=null;
+  }
+  isUpdate = false;
 
   e.preventDefault();
 }
@@ -110,6 +126,22 @@ function removeTask(e) {
     }
   }
 }
+
+// Remove Task
+function EditTask(e) {
+  if(e.target.parentElement.classList.contains('update-item')) {
+    if(confirm('Are You Sure?')) {
+      document.getElementById("task").value = e.target.parentElement.parentElement.textContent;
+      isUpdate = true;
+      currentUpdateElement=e.target.parentElement.parentElement;
+      // e.target.parentElement.parentElement.remove();
+
+      // Remove from LS
+      // removeTaskFromLocalStorage(e.target.parentElement.parentElement);
+    }
+  }
+}
+
 
 // Remove from LS
 function removeTaskFromLocalStorage(taskItem) {
